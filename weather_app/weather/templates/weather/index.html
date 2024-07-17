@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Weather App</title>
+      <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+      <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+      <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+</head>
+<body>
+    <h1>Приложение Погоды</h1>
+    <form action="{% url 'index' %}" method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Get Weather</button>
+    </form>
+
+    {% if weather %}
+        <h2>Weather in {{ weather.name }}</h2>
+        <p>Temperature: {{ weather.main.temp }}°C</p>
+        <p>Weather Description: {{ weather.weather.0.description }}</p>
+        <p>Humidity: {{ weather.main.humidity }}%</p>
+    {% endif %}
+    <script>
+        $(function() {
+            $("#id_city").autocomplete({
+                source: function(request, response) {
+                    $.ajax({
+                        url: "https://api.teleport.org/api/cities/",
+                        dataType: "json",
+                        data: {
+                            search: request.term
+                        },
+                        success: function(data) {
+                            response($.map(data._embedded["city:search-results"], function(item) {
+                                return {
+                                    label: item.matching_full_name,
+                                    value: item.matching_full_name
+                                };
+                            }));
+                        }
+                    });
+                },
+                minLength: 2,
+            });
+        });
+    </script>
+</body>
+</html>
