@@ -38,7 +38,7 @@
         <ul>
             {% for history in request.user.searchhistory_set.all %}
                 <li>
-                    <p>Would you like to view weather for {{ history.city }}?</p>
+                    <p>Would you like to view more detailed weather for <a href="{% url 'weather' %}?city={{ history.city }}">{{ history.city }}?</a></p>
                     <p>Viewed on {{ history.last_searched|date:"DATETIME_FORMAT" }}</p>
                     <p>Times searched: {{ history.search_count }}</p>
                 </li>
@@ -47,6 +47,7 @@
     {% else %}
         <p>Please <a href="{% url 'login' %}">log in</a> to see your weather history.</p>
     {% endif %}
+        <p><a href="{% url 'search-history-stats' %}">View search statistics</a></p>
     <script>
         $(function() {
             $("#id_city").autocomplete({
