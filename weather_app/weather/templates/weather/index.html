@@ -7,7 +7,18 @@
       <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 </head>
 <body>
-    <h1>Приложение Погоды</h1>
+    <h1>Weather App</h1>
+
+    {% if user.is_authenticated %}
+        <p>Welcome, {{ user.username }}!</p>
+        <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit">Logout</button>
+        </form>
+    {% else %}
+        <a href="{% url 'login' %}">Login</a>
+    {% endif %}
+
     <form action="{% url 'index' %}" method="post">
         {% csrf_token %}
         {{ form.as_p }}
@@ -19,6 +30,21 @@
         <p>Temperature: {{ weather.main.temp }}°C</p>
         <p>Weather Description: {{ weather.weather.0.description }}</p>
         <p>Humidity: {{ weather.main.humidity }}%</p>
+    {% endif %}
+
+    {% if request.user.is_authenticated %}
+        <h2>Previously viewed:</h2>
+        <ul>
+            {% for history in request.user.searchhistory_set.all %}
+                <li>
+                    <p>Would you like to view weather for {{ history.city }}?</p>
+                    <p>Viewed on {{ history.last_searched|date:"DATETIME_FORMAT" }}</p>
+                    <p>Times searched: {{ history.search_count }}</p>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Please <a href="{% url 'login' %}">log in</a> to see your weather history.</p>
     {% endif %}
     <script>
         $(function() {
@@ -46,3 +72,38 @@
     </script>
 </body>
 </html>
+
+<!--<!DOCTYPE html>-->
+<!--<html>-->
+<!--<head>-->
+<!--    <title>Weather App</title>-->
+<!--</head>-->
+<!--<body>-->
+<!--    <h1>Weather Forecast</h1>-->
+<!--    <form method="post">-->
+<!--        {% csrf_token %}-->
+<!--        {{ form.as_p }}-->
+<!--        <button type="submit">Get Weather</button>-->
+<!--    </form>-->
+
+<!--    {% if weather %}-->
+<!--        <h2>Weather in {{ weather.city }}</h2>-->
+<!--        <p>Temperature: {{ weather.temperature }}°C</p>-->
+<!--        <p>Weather Description: {{ weather.description }}</p>-->
+<!--        <p>Humidity: {{ weather.humidity }}%</p>-->
+<!--    {% endif %}-->
+
+<!--    {% if request.user.is_authenticated %}-->
+<!--        <h2>Previously viewed:</h2>-->
+<!--        <ul>-->
+<!--            {% for history in request.user.searchhistory_set.all %}-->
+<!--                <li>-->
+<!--                    <p>Would you like to view weather for {{ history.city }}?</p>-->
+<!--                    <p>Viewed on {{ history.last_searched|date:"DATETIME_FORMAT" }}</p>-->
+<!--                    <p>Times searched: {{ history.search_count }}</p>-->
+<!--                </li>-->
+<!--            {% endfor %}-->
+<!--        </ul>-->
+<!--    {% endif %}-->
+<!--</body>-->
+<!--</html>-->
