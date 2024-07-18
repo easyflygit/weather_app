@@ -1,5 +1,5 @@
-from django.shortcuts import render
-from .forms import CityForm
+from django.shortcuts import render, redirect
+from .forms import CityForm, SignUpForm
 from .utils import get_weather
 from .models import SearchHistory
 from django.http import JsonResponse
@@ -7,6 +7,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .serializers import SearchHistorySerializer
+from django.contrib.auth import login, authenticate
 
 
 def index(request):
@@ -63,3 +64,26 @@ class WeatherView(APIView):
             return Response({'city': city, 'weather': weather}, status=status.HTTP_200_OK)
         else:
             return Response({'error': 'Failed to fetch weather data'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+def city_autocomplete(request):
+    if 'term' in request.GET:
+        qs = SearchHistory.objects.filter(city__icontains=request.GET.get('term'))
+        cities = list(qs.values_list('city', flat=True).distinct())
+        return JsonResponse(cities, safe=False)
+    return JsonResponse([], safe=False)
+
+
+def signup(request):
+    if request.method == 'POST':
+        form = SignUpForm(request.POST)
+        if form.is_valid():
+            form.save()
+            username = form.cleaned_data.get('username')
+            raw_password = form.cleaned_data.get('password1')
+            user = authenticate(username=username, password=raw_password)
+            login(request, user)
+            return redirect('index')
+    else:
+        form = SignUpForm()
+    return render(request, 'weather/signup.html', {'form': form})
