@@ -4,11 +4,13 @@ from django.contrib.auth.forms import UserCreationForm
 
 
 class CityForm(forms.Form):
+    """Форма для ввода города"""
     city = forms.CharField(label='City', max_length=100,
                            widget=forms.TextInput(attrs={'id': 'id_city'}))
 
 
 class SignUpForm(UserCreationForm):
+    """Форма для регистрации нового пользователя"""
     email = forms.EmailField(max_length=100, help_text='Required. Inform a valid email address.')
 
     class Meta:
